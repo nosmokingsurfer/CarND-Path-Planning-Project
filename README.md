@@ -11,6 +11,9 @@ I implemented somple finite state machine for behavioral planning. If there is a
 Part of previous trajectory command is used when planning new one - it will help to obtain smooth trajectory w/o jerk.
 I use spline.h library[https://kluge.in-chemnitz.de/opensource/spline/spline.h] to make smooth polinomial fitting for (50 - prev_traj_size) points to continue trajectory smoothly. I use current and previous poses of a car and 3 points at distance of 60, 80 and 100 meters to obtain smooth transitions when changing lanes.
 
+
+![alt text](https://github.com/nosmokingsurfer/CarND-Path-Planning-Project/blob/master/PathPlanning.jpg)
+
 ### Simulator.
 You can download the Term3 Simulator which contains the Path Planning Project from the [releases tab (https://github.com/udacity/self-driving-car-sim/releases/tag/T3_v1.2).  
 
