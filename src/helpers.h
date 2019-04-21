@@ -1,3 +1,20 @@
+
+#include <thread>
+#include <vector>
+
+#include "Eigen-3.3/Eigen/Core"
+#include "Eigen-3.3/Eigen/QR"
+#include "Eigen-3.3/Eigen/Dense"
+
+using namespace std;
+using namespace Eigen;
+
+bool cmp(std::pair<double, double> &a, std::pair<double, double> &b)
+{
+    return a.first < b.first;
+}
+
+
 #ifndef HELPERS_H
 #define HELPERS_H
 
@@ -29,10 +46,92 @@ string hasData(string s) {
 //   or vice versa
 //
 
+
 // For converting back and forth between radians and degrees.
 constexpr double pi() { return M_PI; }
 double deg2rad(double x) { return x * pi() / 180; }
 double rad2deg(double x) { return x * 180 / pi(); }
+
+
+vector<double> gm2vr(vector<double> gmPt, const vector<double> carPose)
+{
+  vector<double> result;
+  double car_x = carPose[0];
+  double car_y = carPose[1];
+  double car_yaw = deg2rad(carPose[2]);
+  
+  result.push_back( (gmPt[0] - car_x)*cos(car_yaw) + (gmPt[1] - car_y)*sin(car_yaw));
+  result.push_back(-(gmPt[0] - car_x)*sin(car_yaw) + (gmPt[1] - car_y)*cos(car_yaw));
+  
+  return result;
+}
+
+
+vector<double> vr2gm(vector<double> vrPt, const vector<double> carPose)
+{
+  vector<double> result;
+  
+  double car_x = carPose[0];
+  double car_y = carPose[1];
+  double car_yaw = deg2rad(carPose[2]);
+   
+  result.push_back(vrPt[0] * cos(car_yaw) - vrPt[1] * sin(car_yaw) + car_x);
+  result.push_back(vrPt[0] * sin(car_yaw) + vrPt[1] * cos(car_yaw) + car_y);
+
+  return result;
+}
+
+int getLaneNumber(double d)
+{
+  if((d > 0) && (d <= 4))
+    return 0;
+  else if((d > 4) && (d <= 8))
+    return 1;
+  else if((d > 8) && (d <= 12))
+    return 2;
+  else
+    return -1;
+}
+
+Vector2d gm2vr(Vector2d gmPt, const Vector3d carPose)
+{
+  Vector2d result;
+  
+  double yaw = carPose[2];
+  double x = carPose[0];
+  double y = carPose[1];
+
+  Vector2d translation;
+  translation << x, y;
+  
+  Matrix2d R;
+  R << cos(yaw), -sin(yaw),
+       sin(yaw), cos(yaw);
+  
+  result = R*(gmPt - translation);
+ 
+  return result;
+}
+
+Vector2d vr2gm(Vector2d vrPt, const Vector3d carPose)
+{
+  Vector2d result;
+  
+  double yaw = carPose[2];
+  double x = carPose[0];
+  double y = carPose[1];
+
+  Vector2d translation;
+  translation << x, y;
+  
+  Matrix2d R;
+  R << cos(yaw), -sin(yaw),
+       sin(yaw), cos(yaw);
+  
+  result = translation + R.inverse()*vrPt;
+  
+  return result;
+}
 
 // Calculate distance between two points
 double distance(double x1, double y1, double x2, double y2) {
@@ -59,6 +158,7 @@ int ClosestWaypoint(double x, double y, const vector<double> &maps_x,
 }
 
 // Returns next waypoint of the closest waypoint
+    
 int NextWaypoint(double x, double y, double theta, const vector<double> &maps_x, 
                  const vector<double> &maps_y) {
   int closestWaypoint = ClosestWaypoint(x,y,maps_x,maps_y);

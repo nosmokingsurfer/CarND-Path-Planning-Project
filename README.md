@@ -1,6 +1,16 @@
 # CarND-Path-Planning-Project
 Self-Driving Car Engineer Nanodegree Program
-   
+
+
+### Reflection on how to generate paths
+
+First, the obstacles are estimated in all the lanes. There are buffer zones if front, to the left and to the right side of the car. Each object from fusion array is corresponded with lane number and small prediction is made if it will appear in buffer zones in several time cycles.
+
+I implemented somple finite state machine for behavioral planning. If there is an obstacle in front of the car, it tries to chenge the lane if possible. If there is no opportunity to change the lane it will just keep the distance to the ahead vehicle.
+
+Part of previous trajectory command is used when planning new one - it will help to obtain smooth trajectory w/o jerk.
+I use spline.h library[https://kluge.in-chemnitz.de/opensource/spline/spline.h] to make smooth polinomial fitting for (50 - prev_traj_size) points to continue trajectory smoothly. I use current and previous poses of a car and 3 points at distance of 60, 80 and 100 meters to obtain smooth transitions when changing lanes.
+
 ### Simulator.
 You can download the Term3 Simulator which contains the Path Planning Project from the [releases tab (https://github.com/udacity/self-driving-car-sim/releases/tag/T3_v1.2).  
 
